@@ -1,0 +1,151 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+
+    <body>
+
+        <ui:composition template="./../../plantilla/RentaAutosPlantilla.xhtml">
+
+            <ui:define name="top">
+                <h2>Renta de Autos</h2>
+            </ui:define>
+
+            <ui:define name="content">
+                <h:form id="frmRentarAutos">
+                    <p:growl id="mensaje" />
+                    <p:panel id="pnlRentarAutos">
+                        <p:panelGrid columns="4">
+                            <p:outputLabel value="ID" />
+                            <p:outputLabel value="#{rentarAutosControl.alquilerVehiculo.idAlquilerVehiculo}" />
+                            
+                            <p:outputLabel value="Marca" />
+                            <p:selectOneMenu id="marca" value="#{rentarAutosControl.alquilerVehiculo.idMarca}" 
+                                             converter="entityConverter" effect="fade" var="marca" filter="true"
+                                             filterMatchMode="contains"  style="width:200px">
+                                <f:selectItem itemValue="#{null}" itemLabel="--SELECCIONE--" />
+                                <f:selectItems value="#{rentarAutosControl.lstMarca}" var="marca" itemLabel="#{marca.marca}" itemValue="#{marca}" />
+                                <p:column>
+                                    <h:outputText value="#{marca.idMarca}" />
+                                </p:column>
+                                <p:column>
+                                    <h:outputText value="#{marca.marca}" />
+                                </p:column>
+                                <p:column>
+                                    <h:outputText value="#{marca.tarifa}" />
+                                </p:column>                                
+                            </p:selectOneMenu>    
+                            
+                            <p:outputLabel value="Modelo" />
+                            <p:selectOneMenu id="modelo" value="#{rentarAutosControl.alquilerVehiculo.idModelo}" 
+                                             converter="entityConverter" effect="fade" var="modelo" filter="true"
+                                             filterMatchMode="contains"  style="width:200px">
+                                <f:selectItem itemValue="#{null}" itemLabel="--SELECCIONE--" />
+                                <f:selectItems value="#{rentarAutosControl.lstModelo}" var="modelo" itemLabel="#{modelo.modelo}" itemValue="#{modelo}" />
+                                <p:column>
+                                    <h:outputText value="#{modelo.idModelo}" />
+                                </p:column>
+                                <p:column>
+                                    <h:outputText value="#{modelo.modelo}" />
+                                </p:column>
+                                <p:column>
+                                    <h:outputText value="#{modelo.tarifa}" />
+                                </p:column>                                
+                            </p:selectOneMenu>      
+                            
+                            <p:outputLabel value="Transmisión" />
+                            <p:selectOneMenu id="transmision" value="#{rentarAutosControl.alquilerVehiculo.idTransmision}" 
+                                             converter="entityConverter" effect="fade" var="transmision" filter="true"
+                                             filterMatchMode="contains"  style="width:200px">
+                                <f:selectItem itemValue="#{null}" itemLabel="--SELECCIONE--" />
+                                <f:selectItems value="#{rentarAutosControl.lstTransmision}" var="transmision" itemLabel="#{transmision.transmision}" itemValue="#{transmision}" />
+                                <p:column>
+                                    <h:outputText value="#{transmision.idTransmision}" />
+                                </p:column>
+                                <p:column>
+                                    <h:outputText value="#{transmision.transmision}" />
+                                </p:column>
+                                <p:column>
+                                    <h:outputText value="#{transmision.tarifa}" />
+                                </p:column>                                
+                            </p:selectOneMenu>        
+                            
+                            <p:outputLabel value="Días a Alquilar" />
+                            <p:inputText id="dias" value="#{rentarAutosControl.alquilerVehiculo.dias}" >
+                                <p:ajax event="change" process="@this marca modelo transmision" listener="#{rentarAutosControl.calcularCosto()}" update="costo" />
+                            </p:inputText>
+                                
+                            <p:outputLabel value="Costo" />
+                            <p:inputText id="costo" disabled="true" value="#{rentarAutosControl.alquilerVehiculo.costoAlquiler}" />
+                            
+                            <p:outputLabel value="Accesorio" />
+                            <p:selectOneMenu id="accesorio" value="#{rentarAutosControl.detAccesorios.idAccesorio}" 
+                                             converter="entityConverter" effect="fade" var="accesorio" filter="true"
+                                             filterMatchMode="contains"  style="width:200px">
+                                <f:selectItem itemValue="#{null}" itemLabel="--SELECCIONE--" />
+                                <f:selectItems value="#{rentarAutosControl.lstAccesorio}" var="accesorio" itemLabel="#{accesorio.accesorio}" itemValue="#{accesorio}" />
+                                <p:column>
+                                    <h:outputText value="#{accesorio.idAccesorio}" />
+                                </p:column>
+                                <p:column>
+                                    <h:outputText value="#{accesorio.accesorio}" />
+                                </p:column>
+                                <p:column>
+                                    <h:outputText value="#{accesorio.tarifa}" />
+                                </p:column>                                
+                            </p:selectOneMenu>   
+                            
+                            <p:commandButton value="Agregar" action="#{rentarAutosControl.agregarDetalle}"  update="mensaje frmRentarAutos"/>
+                        </p:panelGrid>
+                        
+                    </p:panel>
+                    
+                    <p:panel id="pnlAccesorios">
+                        <f:facet name="headerText" >
+                            <h2>Accesorios Agregados</h2>
+                        </f:facet>         
+                        
+                        <p:dataTable id="dtAccesorios" value="#{rentarAutosControl.alquilerVehiculo.detAccesoriosList}" var="accesorio" 
+                                     rows="10"
+                                     paginator="true"
+                                     paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="5,10,15">                                     
+
+                            <p:column headerText="ITEM">
+                                <h:outputText value="#{accesorio.idDetAccesorios}" />
+                            </p:column>                            
+
+                            <p:column headerText="ID">
+                                <h:outputText value="#{accesorio.idAccesorio.idAccesorio}" />
+                            </p:column>                            
+                            
+                            <p:column headerText="DESCRIPCION">
+                                <h:outputText value="#{accesorio.idAccesorio.accesorio}" />
+                            </p:column>                            
+  
+                            <p:column headerText="TARIFA">
+                                <h:outputText value="#{accesorio.idAccesorio.tarifa}" />
+                            </p:column>                               
+                            
+                            <p:column headerText="Acciones">
+                                <p:commandButton value="Borrar" 
+                                                 action="#{rentarAutosControl.borrarDetalle}" 
+                                                 update=":frmRentarAutos:pnlAccesorios :frmRentarAutos:mensaje"> 
+                                    <f:setPropertyActionListener value="#{accesorio}" 
+                                                                 target="#{rentarAutosControl.detAccesorios}" />
+                                </p:commandButton>
+                            </p:column>
+                            
+                        </p:dataTable>                        
+                        
+                    </p:panel>
+                </h:form>
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>
